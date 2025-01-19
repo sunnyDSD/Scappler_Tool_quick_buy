@@ -1,0 +1,5 @@
+{
+    "subject": "Product {product_name} is Available!",
+    "body": "Hey {username},\n\nYour product '{product_name}' is in stock for ${price}.\nCheck it out:\n{product_url}\n\nHappy shopping!"
+  }
+  

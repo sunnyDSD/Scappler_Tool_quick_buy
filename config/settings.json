@@ -1,0 +1,20 @@
+{
+    "product_url": "https://example.com/product-page",
+    "max_price": 1500,
+    "refresh_interval": 10,
+    "recipient_email": "recipient@example.com",
+    "sender_email": "your_email@gmail.com",
+    "sender_password": "your_password", 
+    "target_url": "https://example.com/product-listing",
+    "keywords": ["5090", "graphics card", "gpu"]
+}
+
+/*
+targets could include new releases of products, or products that are in high demand. So 
+amazon new releases best buy new arrivals micro center listings 
+tech blogs fashion blogs pc picker sites
+
+For example this is a target 
+
+https://www.amazon.com/gp/new-releases
+*/
