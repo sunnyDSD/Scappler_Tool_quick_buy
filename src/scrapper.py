@@ -9,10 +9,10 @@ def load_settings():
         with open("config/settings.json", "r") as file:
             return json.load(file)
     except FileNotFoundError:
-        print("Error: settings.json not found in the config folder.")
+        print("❌ Error: settings.json not found in the config folder.")
         exit()
     except json.JSONDecodeError:
-        print("Error: Invalid JSON format in settings.json.")
+        print("❌ Error: Invalid JSON format in settings.json.")
         exit()
 
 # Function to check if the product page is accessible
@@ -23,13 +23,13 @@ def check_page_accessibility(product_url):
         }
         response = requests.get(product_url, headers=headers)
         if response.status_code == 200:
-            print(f"Page is accessible: {product_url}")
+            print(f"✅ Page is accessible: {product_url}")
             return True
         else:
-            print(f"Error: Received status code {response.status_code} from {product_url}")
+            print(f"❌ Error: Received status code {response.status_code} from {product_url}")
             return False
     except Exception as e:
-        print(f"Error checking page accessibility: {e}")
+        print(f"❌ Error checking page accessibility: {e}")
         return False
 
 # Scraper function to check product availability and price
@@ -40,7 +40,7 @@ def check_product_availability(product_url, max_price):
         }
         response = requests.get(product_url, headers=headers)
         if response.status_code != 200:
-            print(f"Error: Received status code {response.status_code} from {product_url}")
+            print(f"❌ Error: Received status code {response.status_code} from {product_url}")
             return False, None
 
         soup = BeautifulSoup(response.content, "html.parser")
@@ -50,7 +50,7 @@ def check_product_availability(product_url, max_price):
         stock_element = soup.select_one(".stock-status")  # Update with the actual stock status selector
 
         if not price_element or not stock_element:
-            print("Error: Unable to find price or stock status elements. Check the selectors.")
+            print("❌ Error: Unable to find price or stock status elements. Check the selectors.")
             return False, None
 
         # Extract and process price
@@ -66,7 +66,7 @@ def check_product_availability(product_url, max_price):
         return False, price
 
     except Exception as e:
-        print(f"Error: {e}")
+        print(f"❌ Error: {e}")
         return False, None
 
 # Main function
@@ -77,26 +77,24 @@ if __name__ == "__main__":
     max_price = settings.get("max_price")
     refresh_interval = settings.get("refresh_interval", 10)  # Default refresh interval of 10 seconds
 
-    if not product_url or not max_price:
-        print("Error: product_url and max_price must be set in settings.json.")
+    if not product_url:
+        print("❌ Error: No product URL provided. Exiting.")
         exit()
 
     if not check_page_accessibility(product_url):
-        print("Error: Product page is not accessible. Exiting.")
+        print("❌ Error: Product page is not accessible. Exiting.")
         exit()
 
-    print(f"Monitoring product: {product_url}")
-    print(f"Max price: ${max_price}")
+    print(f"🔍 Monitoring product: {product_url}")
+    print(f"💲 Max price: ${max_price}")
 
     while True:
         available, price = check_product_availability(product_url, max_price)
 
         if available:
-            print(f"Product is available for ${price}! Buy it now: {product_url}")
+            print(f"🎉 Product is available for ${price}! Buy it now: {product_url}")
             break  # Exit the loop once the product is found
         else:
-            print(f"Product not available. Current price: ${price if price else 'N/A'}")
+            print(f"🔄 Product not available. Current price: ${price if price else 'N/A'}")
 
         time.sleep(refresh_interval)
-
-    
