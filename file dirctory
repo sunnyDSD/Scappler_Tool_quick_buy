@@ -20,3 +20,20 @@
 ├── README.md                      # Instructions to set up and use the bot.
 
 
+
+
+what the automator should do if the link isn't posted yet it should scan a target link news page for ex and if it finds the link 
+it should be emailed to the user then the user feeds back a input saying that its correct and then it gets  feed to the scrapper 
+If the product link is already in settings the automater can be skipped and go directory to scapper
+
+
+what the scrapper should do with the automator.py if the prodcut link is already there it should then scrap
+the website of the product then no email is needed to be sent to the user as we already have a set product link but info 
+price should be sent back and other things but it should also keep refreshing the page if the item is out of stock then once its read and is in stock or
+limited stock avaible we then buy the 1st stock and that should be feed to buy.py to nuy
+
+so what is the next step from here? we then should make another file were we have to buy the product it always works differnlty
+amazon has card saved so there is three pages a buy now now then the check out then place order lets make this happen
+ then it should to the next step buying
+
+buy.py

@@ -5,8 +5,8 @@
     "recipient_email": "recipient@example.com",
     "sender_email": "your_email@gmail.com",
     "sender_password": "your_password", 
-    "target_url": "https://example.com/product-listing",
-    "keywords": ["5090", "graphics card", "gpu"]
+    "target_url": "https://www.amazon.com/gp/new-releases/",
+    "keywords": ["Real Time", "Earphone", ""]
 }
 
 /*

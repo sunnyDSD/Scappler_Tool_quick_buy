@@ -1,5 +1,5 @@
 from src.automator import monitor_page
-from src.scraper import check_product_availability
+from src.scrapper import check_product_availability
 
 def main():
     print("Starting the Product Sniper Bot...")

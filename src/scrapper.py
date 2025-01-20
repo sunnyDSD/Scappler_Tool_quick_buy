@@ -2,38 +2,26 @@ import requests
 from bs4 import BeautifulSoup
 import json
 import time
+from src.purchase import automate_purchase  # Purchase module
 
-# Load configuration from settings.json
-def load_settings():
+# Load configuration
+def load_settings(path="config/settings.json"):
+    """Loads configuration settings."""
     try:
-        with open("config/settings.json", "r") as file:
+        with open(path, "r") as file:
             return json.load(file)
     except FileNotFoundError:
-        print("❌ Error: settings.json not found in the config folder.")
+        print("❌ Error: settings.json not found.")
         exit()
-    except json.JSONDecodeError:
-        print("❌ Error: Invalid JSON format in settings.json.")
+    except json.JSONDecodeError as e:
+        print(f"❌ Error: Invalid JSON format in settings.json. Error: {e}")
         exit()
 
-# Function to check if the product page is accessible
-def check_page_accessibility(product_url):
-    try:
-        headers = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
-        }
-        response = requests.get(product_url, headers=headers)
-        if response.status_code == 200:
-            print(f"✅ Page is accessible: {product_url}")
-            return True
-        else:
-            print(f"❌ Error: Received status code {response.status_code} from {product_url}")
-            return False
-    except Exception as e:
-        print(f"❌ Error checking page accessibility: {e}")
-        return False
 
-# Scraper function to check product availability and price
-def check_product_availability(product_url, max_price):
+# Scrape product page for details
+def scrape_product_details(product_url, max_price):
+    """Scrapes the product page for price and stock status."""
+    print(f"🔍 Scraping product page: {product_url}")
     try:
         headers = {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
@@ -41,60 +29,51 @@ def check_product_availability(product_url, max_price):
         response = requests.get(product_url, headers=headers)
         if response.status_code != 200:
             print(f"❌ Error: Received status code {response.status_code} from {product_url}")
-            return False, None
+            return None, None
 
         soup = BeautifulSoup(response.content, "html.parser")
 
         # Example selectors - update these based on the website's structure
-        price_element = soup.select_one(".price")  # Update with the actual price selector
-        stock_element = soup.select_one(".stock-status")  # Update with the actual stock status selector
+        price_element = soup.select_one(".price")  # Replace with the actual price selector
+        stock_element = soup.select_one(".stock-status")  # Replace with the actual stock status selector
+        title_element = soup.select_one(".product-title")  # Replace with the actual product title selector
 
         if not price_element or not stock_element:
             print("❌ Error: Unable to find price or stock status elements. Check the selectors.")
-            return False, None
+            return None, None
 
-        # Extract and process price
+        # Extract product details
         price_text = price_element.get_text(strip=True)
         price = float(price_text.replace("$", "").replace(",", ""))
-
-        # Extract and process stock status
         stock_status = stock_element.get_text(strip=True).lower()
+        title = title_element.get_text(strip=True) if title_element else "Unknown Product"
 
-        # Check stock and price conditions
+        # Print extracted details
+        print(f"📄 Product Details:\n - Title: {title}\n - Price: ${price}\n - Stock Status: {stock_status}")
+
+        # Check if the product meets criteria
         if "in stock" in stock_status and price <= max_price:
-            return True, price
-        return False, price
+            return price, title
+        return None, title
 
     except Exception as e:
-        print(f"❌ Error: {e}")
-        return False, None
+        print(f"❌ Error scraping product page: {e}")
+        return None, None
 
-# Main function
-if __name__ == "__main__":
+
+# Monitor product
+def monitor_product(product_url):
+    """Monitors the product page and proceeds to purchase if criteria are met."""
     settings = load_settings()
-
-    product_url = settings.get("product_url")
     max_price = settings.get("max_price")
-    refresh_interval = settings.get("refresh_interval", 10)  # Default refresh interval of 10 seconds
-
-    if not product_url:
-        print("❌ Error: No product URL provided. Exiting.")
-        exit()
-
-    if not check_page_accessibility(product_url):
-        print("❌ Error: Product page is not accessible. Exiting.")
-        exit()
-
-    print(f"🔍 Monitoring product: {product_url}")
-    print(f"💲 Max price: ${max_price}")
+    refresh_interval = settings.get("refresh_interval", 10)
 
     while True:
-        available, price = check_product_availability(product_url, max_price)
-
-        if available:
-            print(f"🎉 Product is available for ${price}! Buy it now: {product_url}")
-            break  # Exit the loop once the product is found
+        price, title = scrape_product_details(product_url, max_price)
+        if price:
+            print(f"🎉 Product is available for ${price}! Initiating purchase process for {title}...")
+            automate_purchase(product_url)  # Trigger purchase logic
+            break
         else:
-            print(f"🔄 Product not available. Current price: ${price if price else 'N/A'}")
-
+            print(f"🔄 Product not available or criteria not met. Retrying in {refresh_interval} seconds...")
         time.sleep(refresh_interval)
